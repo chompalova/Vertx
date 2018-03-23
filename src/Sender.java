@@ -15,7 +15,7 @@ public class Sender extends AbstractVerticle {
                 System.out.println("Sender: Failed to send msg." + res.cause());
             }
         });
-        eventBus.consumer(Constants.ADDRESS, msg -> System.out.println("received msg from consumer:" + msg.body()));
+        //eventBus.consumer(Constants.ADDRESS, msg -> System.out.println("received msg from consumer:" + msg.body()));
     }
 
     @Override
