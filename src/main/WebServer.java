@@ -1,20 +1,21 @@
 package main;
 
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 
-public class WebServer {
-    final private Vertx vertx = Vertx.vertx();
+public class WebServer extends AbstractVerticle {
 
+    @Override
     public void start(Future<Void> future) {
         final Router router = Router.router(vertx);
         router.route("/").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
             response.putHeader("content-type", "text/html");
-            response.end("Hello world!");
+            response.end("From server: Hello world!");
         });
 
         HttpServer httpServer = vertx.createHttpServer();
