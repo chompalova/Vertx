@@ -1,3 +1,5 @@
+package main;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -5,13 +7,13 @@ import io.vertx.core.http.HttpServerRequest;
 
 public class HttpServerVerticle extends AbstractVerticle{
     private HttpServer httpServer = null;
-    final public static int PORT = 9999;
+    final public static int PORT = 8080;
 
     @Override
     public void start(Future <Void> future) {
         httpServer = vertx.createHttpServer();
         httpServer.requestHandler(request -> handleHttpRequest(request));
-        httpServer.listen(PORT, "192.168.0.104", res -> {
+        httpServer.listen(PORT, "localhost", res -> {
             if (res.succeeded()) {
                 System.out.println("Server listening on port: " + PORT);
                 future.complete();
@@ -23,15 +25,16 @@ public class HttpServerVerticle extends AbstractVerticle{
     }
 
     private void handleHttpRequest(final HttpServerRequest httpRequest) {
-        vertx.eventBus().send(Constants.ADDRESS, "Hello world", res -> {
+        /*vertx.eventBus().send(Constants.ADDRESS, "Hello world", res -> {
             if (res.succeeded()) {
                 httpRequest.response().end(res.result().body().toString());
-                System.out.println("Request successfully handled.");
+                System.out.println("From server: sent a response.");
             } else {
                 httpRequest.response().setStatusCode(500).end(res.cause().getMessage());
                 System.out.println("From server: failed to handle request.");
             }
-        });
+        });*/
+        httpRequest.response().end( "Hello world!");
     }
 
     @Override

@@ -1,3 +1,5 @@
+package main;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 
@@ -11,7 +13,7 @@ public class Sender extends AbstractVerticle {
             if (res.succeeded()) {
                 System.out.println("Sender: received a reply: " + res.result().body());
             } else {
-                System.out.println("Sender: Failed to receive a reply." + res.cause());
+                System.out.println("Sender: failed to receive a reply." + res.cause());
             }
         });
     }
