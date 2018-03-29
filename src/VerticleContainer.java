@@ -1,13 +1,10 @@
 package main;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
 
 public class VerticleContainer extends AbstractVerticle{ //verticle container
-
-    private static Vertx vertx = Vertx.vertx();
 
    /* public void start(Future<Void> future) {
         Future<String> consumerDeployment = Future.future();
@@ -29,7 +26,7 @@ public class VerticleContainer extends AbstractVerticle{ //verticle container
     }*/
 
     public void start() {
-        vertx.deployVerticle(new HttpServerVerticle(), res -> {
+        vertx.deployVerticle(new WebServer(), res -> {
             if (res.succeeded()) {
                 System.out.println("Successfully deployed HTTP Server.");
             } else {
@@ -39,7 +36,7 @@ public class VerticleContainer extends AbstractVerticle{ //verticle container
 
     }
 
-    public static void timer() {
+    private void timer() {
         vertx.setTimer(5000, id -> System.out.println("This will be printed in 5 seconds."));
         System.out.println("This is printed");
     }

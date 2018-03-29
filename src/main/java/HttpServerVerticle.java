@@ -1,4 +1,4 @@
-package main;
+package main.java;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -7,15 +7,14 @@ import io.vertx.core.http.HttpServerRequest;
 
 public class HttpServerVerticle extends AbstractVerticle{
     private HttpServer httpServer = null;
-    final public static int PORT = 8080;
 
     @Override
     public void start(Future <Void> future) {
         httpServer = vertx.createHttpServer();
         httpServer.requestHandler(request -> handleHttpRequest(request));
-        httpServer.listen(PORT, "localhost", res -> {
+        httpServer.listen(Constants.PORT, res -> {
             if (res.succeeded()) {
-                System.out.println("Server listening on port: " + PORT);
+                System.out.println("Server listening on port: " + Constants.PORT);
                 future.complete();
             } else {
                 System.out.println("Failed to start server.");
