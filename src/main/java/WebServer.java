@@ -5,6 +5,8 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -17,6 +19,7 @@ public class WebServer extends AbstractVerticle {
 
     //private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
     private Map<Integer, Dog> dogs = new LinkedHashMap<>();
+    private MongoDbClient mongo = new MongoDbClient();
 
     @Override
     public void start(Future<Void> future) throws Exception {
@@ -46,18 +49,40 @@ public class WebServer extends AbstractVerticle {
                 future.fail(res.cause());
             }
         });
+
+        /*vertx.deployVerticle(new MongoDbClient(), res -> {
+            if (res.succeeded()) {
+                System.out.println("Successfully deployed MongoDBClient");
+            } else {
+                res.cause().printStackTrace();
+            }
+        });*/
     }
 
     private void createData(Map<Integer, Dog> dogs) {
         Dog dog = new Dog("Beagle", 8);
         dogs.put(dog.getId(), dog);
+
+        mongo.document.put(dog.getBreed(), dog.getAge());
+        mongo.client.insert("Dogs.dogs", mongo.document, res -> {
+            if (res.succeeded()) {
+                final String id = res.result();
+                System.out.println("Inserted book with id " + id);
+            } else {
+                res.cause().printStackTrace();
+            }
+        });
+
         dog = new Dog("Golden Retriever ", 12);
         dogs.put(dog.getId(), dog);
+
+        mongo.document.put(dog.getBreed(), dog.getAge());
     }
 
     private void addItem(RoutingContext context) {
         final Dog dog = Json.decodeValue(context.getBodyAsString(), Dog.class);
         dogs.put(dog.getId(), dog);
+        mongo.document.put(dog.getBreed(), dog.getAge());
         context.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(dog));
     }
 
@@ -67,9 +92,12 @@ public class WebServer extends AbstractVerticle {
 
     private void deleteItem(RoutingContext context) {
         final String id = context.request().getParam("id");
-        if (id != null) {
-            dogs.remove(id);
+        if (id == null) {
+            context.response().setStatusCode(400).end();
+        } else {
+            Integer iDAsInt = Integer.valueOf(id);
+            dogs.remove(iDAsInt);
+            context.response().setStatusCode(200).putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(dogs.values()));
         }
-        context.response().setStatusCode(200).putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(dogs.values()));
     }
 }
