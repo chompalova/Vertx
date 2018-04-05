@@ -111,8 +111,6 @@ public class WebServer extends AbstractVerticle {
 
     private void deleteItem(RoutingContext context) {
         HttpServerRequest req = context.request();
-        String str = context.getBodyAsString();
-        System.out.println("Request body: " + str);
         final String id = req.getParam("id");
         System.out.println("Id is: " + id);
         if (id == null) {
