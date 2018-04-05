@@ -2,11 +2,11 @@ package main.java;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -19,7 +19,6 @@ import io.vertx.ext.web.handler.StaticHandler;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class WebServer extends AbstractVerticle {
 
@@ -57,43 +56,14 @@ public class WebServer extends AbstractVerticle {
 
         JsonObject config = new JsonObject().put("host", "127.0.0.1");
         mongo = MongoClient.createShared(vertx, config);
-        //TODO - Add db reading from map
-        createData(dogs, future);
+        Dog dog = new Dog("Beagle", 9);
+        createData("dogs", dog);
+        dog = new Dog("Golden Retriever ", 12);
+        createData("dogs", dog);
     }
 
-    private void createData (Map<Integer, Dog> dogs, Future <Void> future) throws JsonProcessingException {
-        Dog dog = new Dog("Beagle", 9);
-        dogs.put(dog.getId(), dog);
-
-        String dogToJson = ow.writeValueAsString(dog);
-        insertIntoCollection("dogs", dogToJson);
-        System.out.println(dogToJson);
-
-        /*mongo.count("dogs", new JsonObject(), count -> {
-            if (count.succeeded()) {
-                if (count.result() == 0) {
-                    mongo.insert("dogs", new JsonObject(dogToJson), res -> {
-                        if (res.failed()) {
-                            res.cause();
-                            System.out.println("Failed to insert entry.");
-                        } else {
-                            System.out.println("Successfully inserted entry.");
-                        }
-                    });
-                } else {
-                    System.out.println("Collection is not empty.");
-                }
-            } else {
-                future.fail(count.cause());
-            }
-        });*/
-
-
-
-        dog = new Dog("Golden Retriever ", 12);
-        dogs.put(dog.getId(), dog);
-
-        dogToJson = ow.writeValueAsString(dog);
+    private void createData (final String collection, final Object obj) throws JsonProcessingException {
+        String dogToJson = ow.writeValueAsString(obj);
         insertIntoCollection("dogs", dogToJson);
         System.out.println(dogToJson);
     }
@@ -122,7 +92,6 @@ public class WebServer extends AbstractVerticle {
 
     private void addItem (RoutingContext context) {
         final Dog dog = Json.decodeValue(context.getBodyAsString(), Dog.class);
-        dogs.put(dog.getId(), dog);
         try {
             String dogToJson = ow.writeValueAsString(dog);
             insertIntoCollection("dogs", dogToJson);
@@ -141,15 +110,15 @@ public class WebServer extends AbstractVerticle {
     }
 
     private void deleteItem(RoutingContext context) {
-        final String id = context.request().getParam("id");
+        HttpServerRequest req = context.request();
+        String str = context.getBodyAsString();
+        System.out.println("Request body: " + str);
+        final String id = req.getParam("id");
+        System.out.println("Id is: " + id);
         if (id == null) {
             context.response().setStatusCode(400).end();
         } else {
-            final Integer iDAsInt = Integer.valueOf(id);
-            dogs.remove(iDAsInt);
             mongo.removeDocument("dogs", new JsonObject().put("_id", id), res -> context.response().setStatusCode(204).end());
-            //context.response().setStatusCode(200).putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(dogs.values());
-
         }
     }
 }
