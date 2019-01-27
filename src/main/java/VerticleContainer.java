@@ -25,11 +25,12 @@ public class VerticleContainer extends AbstractVerticle{ //verticle container
     }*/
    @Override
     public void start() {
-        vertx.deployVerticle(new WebServer(), res -> {
+        vertx.deployVerticle(new RESTServer(), res -> {
             if (res.succeeded()) {
-                System.out.println("Successfully deployed HTTP Server.");
+                System.out.println("VerticleContainer -> Successfully deployed RESTServer");
             } else {
-                System.out.println("Failed to deploy HTTP Server.");
+                System.out.println("VerticleContainer -> Failed to deploy RESTServer.");
+                res.cause().printStackTrace();
             }
         });
 

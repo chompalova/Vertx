@@ -2,6 +2,7 @@ package main.java;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+//bean class for handling JSON objects
 public class Dog {
     private static final AtomicInteger COUNTER = new AtomicInteger();
     private int id;
@@ -14,12 +15,15 @@ public class Dog {
         this.id = COUNTER.getAndIncrement();
     }
 
-    public Dog() {
-        this.id = COUNTER.getAndIncrement();
-    }
+    public Dog() {}
 
     public int getId() {
         return id;
+    }
+
+    public Dog setId(int id) {
+        this.id = id;
+        return this;
     }
 
     public String getBreed() {
