@@ -36,7 +36,7 @@ public class RESTServer extends AbstractVerticle {
         HttpServer httpServer = vertx.createHttpServer();
         httpServer.requestHandler(router::accept).listen(PORT, res -> {
             if (res.succeeded()) {
-                System.out.println("Server listening on port: " + Constants.PORT);
+                System.out.println("Server listening on port: " + PORT);
                 future.complete();
             } else {
                 System.out.println("Failed to start server.");
